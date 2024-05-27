@@ -1,17 +1,42 @@
-// Update this page (the content is just a fallback if you fail and example)
-// Use chakra-ui
-import { Container, Text, VStack } from "@chakra-ui/react";
-
-// Example of using react-icons
-// import { FaRocket } from "react-icons/fa";
-// <IconButton aria-label="Add" icon={<FaRocket />} size="lg" />; // IconButton would also have to be imported from chakra
+import { Container, Text, VStack, Box, Spinner, Alert, AlertIcon, Link } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
+import { useEvents } from "../integrations/supabase/api";
 
 const Index = () => {
+  const { data: events, isLoading, isError } = useEvents();
+
+  if (isLoading) {
+    return (
+      <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Spinner size="xl" />
+      </Container>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Alert status="error">
+          <AlertIcon />
+          There was an error loading the events.
+        </Alert>
+      </Container>
+    );
+  }
+
   return (
-    <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-      <VStack spacing={4}>
-        <Text fontSize="2xl">Your Blank Canvas</Text>
-        <Text>Chat with the agent to start making edits.</Text>
+    <Container centerContent maxW="container.md" py={8}>
+      <VStack spacing={4} width="100%">
+        <Text fontSize="2xl" fontWeight="bold">Events</Text>
+        {events.map(event => (
+          <Box key={event.id} p={4} borderWidth="1px" borderRadius="md" width="100%">
+            <Link as={RouterLink} to={`/event/${event.id}`} fontSize="xl" fontWeight="bold">
+              {event.name}
+            </Link>
+            <Text>{event.date}</Text>
+            <Text>{event.description}</Text>
+          </Box>
+        ))}
       </VStack>
     </Container>
   );
